@@ -1,0 +1,10 @@
+﻿check,value,passed,note
+TARGET 값 범위,"[0, 1]",True,0과 1만 허용
+TARGET 결측,0,True,0건이어야 함
+train 식별자 중복,0,True,SK_ID_CURR 기준
+test 식별자 중복,0,True,SK_ID_CURR 기준
+train/test 식별자 중첩,0,True,두 데이터의 신청 ID는 분리되어야 함
+train 완전 중복 행,0,True,전체 컬럼 기준
+train 전용 컬럼,['TARGET'],True,TARGET만 train에 존재해야 함
+test 전용 컬럼,[],True,추가 컬럼이 없어야 함
+수치형 무한값,0,True,양·음의 무한대 합계

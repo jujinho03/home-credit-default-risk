@@ -1,0 +1,6 @@
+﻿check,count,rate_percent,action
+DAYS_EMPLOYED sentinel 365243,55374,18.007,NaN으로 바꾸고 별도 indicator 생성
+AMT_INCOME_TOTAL 0 이하,0,0.0,발견 시 원자료 정의 확인
+AMT_CREDIT 0 이하,0,0.0,발견 시 원자료 정의 확인
+AMT_ANNUITY 0 이하,0,0.0,발견 시 원자료 정의 확인
+AMT_GOODS_PRICE 0 이하,0,0.0,발견 시 원자료 정의 확인

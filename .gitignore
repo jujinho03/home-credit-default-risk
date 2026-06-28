@@ -1,0 +1,25 @@
+# Raw Kaggle data
+/data/raw/home-credit-default-risk/*
+!/data/raw/home-credit-default-risk/.gitkeep
+*.zip
+
+# Generated model bundles
+/outputs/models/*.pkl
+
+# Local application/interview notes
+/private/
+
+# Python environments and secrets
+.venv/
+venv/
+.env
+
+# Python/Jupyter
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.vscode/

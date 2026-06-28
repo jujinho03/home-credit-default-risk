@@ -1,0 +1,6 @@
+﻿model,training_rows,training_scope,full_train_comparable,ROC-AUC,PR-AUC,Recall,Precision,F1,Fit time(s)
+Logistic Regression,246008,전체 학습 데이터,True,0.7504,0.2325,0.6812,0.1609,0.2603,3.3311
+Regularized Logistic (L2),246008,전체 학습 데이터,True,0.7504,0.2324,0.6812,0.1609,0.2603,3.5486
+LDA,246008,전체 학습 데이터,True,0.7495,0.2327,0.6767,0.1602,0.2591,1.1538
+LinearSVC,246008,전체 학습 데이터,True,0.7502,0.2338,0.6792,0.1607,0.2599,168.4447
+RBF SVM (5만 행),50000,층화 5만 건 계산 제약,False,0.7315,0.2067,0.5867,0.1732,0.2674,469.5489

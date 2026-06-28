@@ -1,0 +1,23 @@
+# Home Credit 포트폴리오 공통 실행 설정
+project:
+  name: "home-credit-default-risk"
+  title: "Home Credit 채무불이행 위험 분석"
+  target: "TARGET"
+
+data:
+  raw_dir: "data/raw/home-credit-default-risk"
+  processed_dir: "data/processed"
+  train_file: "application_train.csv"
+  test_file: "application_test.csv"
+
+outputs:
+  figures_dir: "outputs/figures"
+  metrics_dir: "outputs/metrics"
+  models_dir: "outputs/models"
+  reports_dir: "outputs/reports"
+
+modeling:
+  random_state: 42
+  valid_size: 0.20
+  rbf_sample_size: 50000
+  cv_folds: 5

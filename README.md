@@ -1,0 +1,215 @@
+# Home Credit 채무불이행 위험 분석
+
+> 307,511건의 대출 신청 데이터를 검수하고 5개 분류모델을 비교해, 추가 확인이 필요한 고위험 신청자를 선별한 학부 머신러닝 프로젝트
+
+## 핵심 결과
+
+- 기준모델: L2 Logistic Regression
+- 검증 ROC-AUC: 0.7504
+- 위험 상위 10% 실제 부도율: 26.48%
+- 전체 부도율 대비 Lift: 3.28배
+- 기존 변수 중요도 해석 오류를 발견하고 수정
+
+## 1. 프로젝트 배경
+
+Home Credit은 금융 이력이 부족한 고객의 대출 상환 가능성을 평가하는 문제를 공개했습니다. 이 프로젝트에서는 `application_train.csv`를 이용해 채무불이행 위험을 분석했습니다.
+
+기존 학부 팀 과제를 포트폴리오로 다시 구성하면서 모델 성능뿐 아니라 데이터 품질, 검증 절차, 결과 해석의 신뢰성을 함께 확인했습니다.
+
+### 분석 목표
+
+1. 원본 데이터의 결측치·이상코드·중복 여부를 확인합니다.
+2. 데이터 누수를 막은 학습·검증 절차를 구성합니다.
+3. 여러 분류모델의 성능과 계산시간을 비교합니다.
+4. 위험도가 높은 신청자를 얼마나 잘 구분하는지 확인합니다.
+5. 변수 중요도 해석 오류를 찾아 수정하고 한계를 기록합니다.
+
+## 2. 사용 데이터
+
+| 항목 | 내용 |
+|---|---:|
+| 분석 파일 | `application_train.csv` |
+| 관측치 | 307,511건 |
+| 입력 변수 | 121개 |
+| 예측 대상 | `TARGET` |
+| 전체 부도율 | 8.07% |
+
+원본 데이터는 용량과 배포 조건 때문에 저장소에 포함하지 않습니다. 내려받는 방법은 [`data/README.md`](data/README.md)에 정리했습니다.
+
+## 3. 분석 파이프라인
+
+```text
+데이터 구조·품질 점검
+→ 탐색적 데이터 분석
+→ 이상코드 처리 및 파생변수 생성
+→ 학습 80% / 검증 20% 층화 분할
+→ 학습 데이터 기준 전처리
+→ 5개 분류모델 비교
+→ 교차검증·변수 중요도·임계값 점검
+→ 위험 10분위 분석
+```
+
+분석은 다음 3개 노트북을 순서대로 실행합니다.
+
+1. [`01_data_quality_preprocessing.ipynb`](notebooks/01_data_quality_preprocessing.ipynb)
+2. [`02_exploratory_analysis.ipynb`](notebooks/02_exploratory_analysis.ipynb)
+3. [`03_modeling_evaluation.ipynb`](notebooks/03_modeling_evaluation.ipynb)
+
+## 4. 데이터 품질 관리
+
+| 점검 항목 | 결과 |
+|---|---:|
+| `TARGET` 결측 | 0건 |
+| 신청 ID 중복 | 0건 |
+| train/test 신청 ID 중첩 | 0건 |
+| 완전 중복 행 | 0건 |
+| 수치형 무한값 | 0개 |
+
+`DAYS_EMPLOYED=365243`은 55,374건이었습니다. 약 1,000년에 해당해 실제 근속기간으로 보기 어려우므로 결측값으로 바꾸고, 이상코드 존재 여부는 별도 변수로 남겼습니다.
+
+### 데이터 누수 방지
+
+- 신청 ID와 정답 컬럼은 모델 입력에서 제외했습니다.
+- 데이터를 먼저 학습용과 검증용으로 나눴습니다.
+- 결측치 대체값과 표준화 기준은 학습 데이터에서만 계산했습니다.
+- 신청 시점을 확실히 구분하기 어려운 보조 테이블은 사용하지 않았습니다.
+
+## 5. 탐색적 데이터 분석
+
+외부 신용점수, 연령, 소득, 대출금액, 직업·교육 관련 범주를 중심으로 부도율 차이를 확인했습니다. 또한 상관계수와 분산팽창계수(VIF)를 이용해 서로 비슷한 정보를 가진 수치형 변수를 점검했습니다.
+
+![외부 신용점수 구간별 부도율](outputs/figures/ext_source_decile_default_rate.png)
+
+탐색 결과는 인과관계가 아니라 변수와 부도 여부 사이의 관련성으로만 해석했습니다.
+
+## 6. 데이터 분할과 전처리
+
+- 학습 데이터: 246,008건
+- 검증 데이터: 61,503건
+- 학습·검증 부도율: 각각 8.07%
+- 파생변수: 재무 비율, 근속 비율, 외부 신용점수 요약 등 13개
+- 불균형 처리: 데이터 복제·삭제 없이 클래스 가중치 적용
+
+부도 고객이 전체의 8.07%이므로 정확도만 사용하지 않고 ROC-AUC, PR-AUC, 재현율, 정밀도와 위험구간별 부도율을 함께 확인했습니다.
+
+## 7. 비교 모델
+
+학부 통계·머신러닝 수업에서 다룬 다음 모델을 비교했습니다.
+
+- Logistic Regression
+- L2 Logistic Regression
+- Linear Discriminant Analysis
+- Linear SVM
+- RBF SVM
+
+RBF SVM은 계산시간 문제로 층화 추출한 5만 건만 학습했습니다. 따라서 다른 네 모델과 동일한 조건의 순위 비교로 해석하지 않았습니다.
+
+## 8. 모델 평가 결과
+
+| 모델 | 학습 데이터 | ROC-AUC | PR-AUC |
+|---|---:|---:|---:|
+| Logistic Regression | 246,008건 | 0.7504 | 0.2325 |
+| L2 Logistic | 246,008건 | 0.7504 | 0.2324 |
+| LinearSVC | 246,008건 | 0.7502 | 0.2338 |
+| LDA | 246,008건 | 0.7495 | 0.2327 |
+| RBF SVM | 50,000건 | 0.7315 | 0.2067 |
+
+L2 Logistic을 기준모델로 선택했습니다. 최고 성능과 거의 같으면서 학습이 빠르고 결과를 비교적 쉽게 설명할 수 있기 때문입니다.
+
+![모델별 ROC 곡선](outputs/figures/model_roc_curves.png)
+
+## 9. 변수 중요도 해석 오류 수정
+
+기존 분석에서는 표준화된 수치형 변수와 0·1 범주형 더미변수의 로지스틱 계수를 그대로 비교했습니다. 변수의 단위와 분포가 다르므로 단순 계수 크기만으로 중요도를 비교하기 어렵습니다.
+
+학습 데이터에서 각 변수가 실제로 변하는 정도를 반영해 효과 크기를 다시 계산하고, 검증 데이터의 변수를 섞었을 때 성능이 얼마나 감소하는지도 확인했습니다.
+
+- `ORGANIZATION_TYPE_Realtor`: 기존 3위 → 수정 후 93위
+- `ORGANIZATION_TYPE_Transport: type 3`: 기존 6위 → 수정 후 88위
+
+드물게 등장하는 조직유형의 중요도를 과대평가했던 기존 해석을 철회했습니다. 이 수정 과정은 결과를 숨기지 않고 다시 검증했다는 점에서 중요한 프로젝트 결과입니다.
+
+## 10. 위험구간 분석
+
+L2 Logistic 위험점수를 10개 구간으로 나눴습니다. 위험 상위 10%의 실제 부도율은 26.48%로 전체 부도율 8.07%의 3.28배였습니다.
+
+![위험 10분위별 실제 부도율](outputs/figures/risk_decile_default_rate.png)
+
+이 모델은 고객의 부도 여부를 확정하는 도구가 아니라, 추가 확인이 필요한 신청자를 먼저 살펴보기 위한 위험 순위 도구로 해석했습니다.
+
+## 11. 프로젝트 구조
+
+```text
+home-credit-default-risk/
+├─ config.yaml
+├─ requirements.txt
+├─ data/
+│  ├─ README.md
+│  ├─ raw/
+│  └─ processed/
+├─ notebooks/
+│  ├─ 01_data_quality_preprocessing.ipynb
+│  ├─ 02_exploratory_analysis.ipynb
+│  └─ 03_modeling_evaluation.ipynb
+├─ outputs/
+│  ├─ figures/
+│  ├─ metrics/
+│  ├─ models/
+│  └─ reports/
+└─ docs/
+   ├─ findings.md
+   ├─ portfolio_description.md
+   └─ submission_manifest.md
+```
+
+## 12. 주요 산출물
+
+| 구분 | 파일 | 설명 |
+|---|---|---|
+| 성능표 | [`model_holdout_performance.csv`](outputs/metrics/model_holdout_performance.csv) | 모델별 홀드아웃 성능과 학습시간 |
+| 교차검증 | [`cross_validation_summary.csv`](outputs/metrics/cross_validation_summary.csv) | 5겹 교차검증 평균과 표준편차 |
+| 임계값 | [`threshold_scenarios.csv`](outputs/metrics/threshold_scenarios.csv) | 기본·F1 최대·Recall 80% 시나리오 |
+| 위험구간 | [`risk_decile_summary.csv`](outputs/metrics/risk_decile_summary.csv) | 위험 10분위별 실제 부도율과 Lift |
+| 분석 보고서 | [`findings.md`](docs/findings.md) | 결과 해석, 수정 사항, 한계 |
+
+전체 산출물 설명은 [`outputs/README.md`](outputs/README.md)에서 확인할 수 있습니다.
+
+## 13. 실행 방법
+
+### 13.1 저장소와 데이터 준비
+
+저장소를 내려받은 뒤 [`data/README.md`](data/README.md)에 따라 Kaggle 원본 CSV를 배치합니다.
+
+### 13.2 가상환경 설치
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m jupyter lab
+```
+
+### 13.3 노트북 실행
+
+JupyterLab에서 01번부터 03번까지 순서대로 실행합니다. 경로, 난수값, 검증 비율은 `config.yaml`에서 관리합니다.
+
+## 14. 결과 해석 시 주의사항
+
+- ROC-AUC는 위험 순위를 구분하는 능력을 나타내며 정확한 부도확률을 뜻하지 않습니다.
+- 0.5 임계값은 업무 목적에 따라 조정해야 합니다.
+- 변수 중요도는 인과관계를 의미하지 않습니다.
+- RBF SVM은 학습 표본 수가 달라 보조 결과로만 봐야 합니다.
+
+## 15. 한계와 개선 방향
+
+- 신청 테이블만 사용해 과거 신용·상환 이력을 충분히 반영하지 못했습니다.
+- 무작위 분할이므로 실제 미래 시점 성능을 검증한 것은 아닙니다.
+- 모델의 확률 보정과 집단별 공정성 검토는 수행하지 않았습니다.
+- 향후 보조 테이블의 기준 시점을 확인한 뒤 결합하고, 시점 기반 검증을 추가할 수 있습니다.
+
+## 16. 사용 기술
+
+Python, pandas, NumPy, scikit-learn, SciPy, Matplotlib, JupyterLab, Git
+
+## 17. 결론
+
+복잡한 모델보다 먼저 데이터 품질과 검증 절차를 확인했고, 기존 변수 중요도 해석의 문제를 발견해 수정했습니다. 기준모델은 위험 상위 10%에서 전체보다 3.28배 높은 부도율을 보여, 추가 확인 대상을 정하는 보조 지표로 활용할 가능성을 확인했습니다.

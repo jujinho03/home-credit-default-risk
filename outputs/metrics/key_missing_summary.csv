@@ -1,0 +1,9 @@
+﻿variable,missing_count,missing_rate_percent,note
+EXT_SOURCE_1,173378,56.381,외부 신용점수 1
+OCCUPATION_TYPE,96391,31.346,직업 유형
+EXT_SOURCE_3,60965,19.825,외부 신용점수 3
+EXT_SOURCE_2,660,0.215,외부 신용점수 2
+AMT_GOODS_PRICE,278,0.09,구매 상품 가격
+AMT_ANNUITY,12,0.004,월 상환액
+CNT_FAM_MEMBERS,2,0.001,가족 구성원 수
+DAYS_LAST_PHONE_CHANGE,1,0.0,전화번호 변경 시점

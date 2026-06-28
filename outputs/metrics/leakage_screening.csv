@@ -1,0 +1,7 @@
+﻿check,result,passed,interpretation
+train에만 존재하는 컬럼,['TARGET'],True,TARGET 외 train 전용 컬럼 없음
+타깃을 암시하는 컬럼명,[],True,TARGET/DEFAULT/LABEL 명칭 스크리닝
+TARGET과 절대상관 0.5 초과,[],True,강한 단변량 누수 징후 스크리닝
+양수 DAYS_* 값,0,True,신청 이후 시점 징후; sentinel 제외
+식별자 모델 입력 제외 정책,SK_ID_CURR,True,후속 피처 노트북에서 제외
+보조 상환 테이블 결합 여부,미결합,True,현재 입력은 application_train만 사용

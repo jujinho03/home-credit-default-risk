@@ -1,0 +1,4 @@
+﻿threshold,pair_count,note
+|r| ≥ 0.7,126,전체 수치형 변수 104개 기준
+|r| ≥ 0.9,61,건물정보 AVG/MODE/MEDI 반복 변수 다수
+핵심 변수 |r| ≥ 0.5,4,"AMT_CREDIT, AMT_GOODS_PRICE, AMT_ANNUITY, EXT_SOURCE_1, AGE_YEARS 관련"
