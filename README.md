@@ -5,6 +5,8 @@
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-Machine%20Learning-F7931E?style=flat-square&logo=scikitlearn&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?style=flat-square&logo=jupyter&logoColor=white)
 
+**바로가기:** [분석 노트북](notebooks/) · [분석 보고서](docs/findings.md) · [프로젝트 설명](docs/portfolio_description.md) · [주요 산출물](outputs/)
+
 > **문제** — 부도 고객이 8.07%인 불균형 대출 신청 데이터에서 고위험 신청자를 구분했습니다.<br>
 > **한 일** — 307,511건을 검수하고 누수를 막은 전처리 후 5개 분류모델과 임계값을 비교했습니다.<br>
 > **핵심 결과** — L2 Logistic ROC-AUC 0.7504, 위험 상위 10% 부도율 26.48%(전체 대비 3.28배)를 확인했습니다.<br>
@@ -238,7 +240,7 @@ home-credit-default-risk/
 
 전체 산출물 설명은 [`outputs/README.md`](outputs/README.md)에서 확인할 수 있습니다.
 
-## 13. 실행 방법
+## 13. 재현 방법
 
 ### 13.1 저장소와 데이터 준비
 
