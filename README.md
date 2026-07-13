@@ -5,7 +5,7 @@
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-Machine%20Learning-F7931E?style=flat-square&logo=scikitlearn&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?style=flat-square&logo=jupyter&logoColor=white)
 
-**바로가기:** [분석 노트북](notebooks/) · [분석 보고서](docs/findings.md) · [프로젝트 설명](docs/portfolio_description.md) · [주요 산출물](outputs/)
+**바로가기:** [분석 노트북](notebooks/) · [분석 보고서](docs/findings.md) · [프로젝트 설명](docs/portfolio_description.md) · [최종 산출물](#12-최종-산출물)
 
 > **문제** — 부도 고객이 8.07%인 불균형 대출 신청 데이터에서 고위험 신청자를 구분했습니다.<br>
 > **한 일** — 307,511건을 검수하고 누수를 막은 전처리 후 5개 분류모델과 임계값을 비교했습니다.<br>
@@ -18,6 +18,28 @@
 - 불균형 분류 평가지표 선택과 임계값의 업무적 해석
 - 분석 결과를 맹신하지 않고 오류를 발견·수정하는 검증 태도
 
+## 프로젝트 한눈에 보기
+
+| 3분 요약 | 내용 |
+|---|---|
+| 해결 문제 | 부도 비율이 8.07%인 불균형 대출 신청 데이터에서 고위험 신청자를 구분 |
+| 데이터 | `application_train.csv` 307,511건, 122개 컬럼 |
+| 분석 흐름 | 품질·누수 점검 → 80:20 층화 분할 → 학습 데이터 기준 전처리 → 5개 모델·교차검증·임계값·위험 10분위 비교 |
+| 기준모델 | L2 Logistic Regression, 홀드아웃 ROC-AUC 0.7504 |
+| 실무형 결과 | 위험 상위 10% 실제 부도율 26.48%, 전체 대비 Lift 3.28배 |
+| 가장 어려웠던 문제 | 표준화 수치형과 0·1 더미변수의 로지스틱 계수를 직접 비교해 희소 범주를 과대평가한 해석 오류 |
+| 해결 | `|β × SD(X_train)|`와 검증 데이터 순열 중요도로 재검증하고 기존 해석을 철회·수정 |
+
+## 나의 역할과 재구축 범위
+
+| 구분 | 내용 |
+|---|---|
+| 프로젝트 출발점 | `통계적 기계학습` 학부 팀 과제 |
+| 지원서 기재 프로젝트 기간 | 2026.03.15–2026.06.07 |
+| 지원서에 정리한 본인 수행 | 데이터 품질 검수·누수 방지 전처리, 모델 비교·검증, 보고서 작성 |
+| 개인 재구축 범위 | 실행 경로·폴더 구조·검증 코드·모델 해석·문서를 전면 재정리하고, 변수 중요도 오류를 두 검증 방법으로 교정 |
+| 공개 Git 정리 기록 | 2026.06.28–현재 |
+
 ## 핵심 결과
 
 - 기준모델: L2 Logistic Regression
@@ -25,6 +47,18 @@
 - 위험 상위 10% 실제 부도율: 26.48%
 - 전체 부도율 대비 Lift: 3.28배
 - 기존 변수 중요도 해석 오류를 발견하고 수정
+
+## 핵심 주장과 검증 경로
+
+| 핵심 주장 | 공개 검증 경로 |
+|---|---|
+| 전체 307,511건 중 부도 24,825건(8.07%) | [`target_distribution.csv`](outputs/metrics/target_distribution.csv) |
+| 구조·중복·무한값 9개 점검 통과, `DAYS_EMPLOYED=365243` 55,374건 식별 | [`data_quality_checks.csv`](outputs/metrics/data_quality_checks.csv), [`anomaly_checks.csv`](outputs/metrics/anomaly_checks.csv) |
+| 학습 246,008건·검증 61,503건으로 층화 분할하고 전처리는 학습 데이터에만 적합 | [`train_validation_split_summary.csv`](outputs/metrics/train_validation_split_summary.csv), [`preprocessing_summary.csv`](outputs/metrics/preprocessing_summary.csv) |
+| 5개 모델 비교에서 L2 Logistic 홀드아웃 ROC-AUC 0.7504, PR-AUC 0.2324 | [`model_holdout_performance.csv`](outputs/metrics/model_holdout_performance.csv), [`cross_validation_summary.csv`](outputs/metrics/cross_validation_summary.csv) |
+| 위험 상위 10% 실제 부도율 26.48%, Lift 3.28배 | [`risk_decile_summary.csv`](outputs/metrics/risk_decile_summary.csv) |
+| 기본·F1 최대·Recall 80% 임계값의 비용 관점 비교 | [`threshold_scenarios.csv`](outputs/metrics/threshold_scenarios.csv) |
+| 변수 중요도 오류를 표준화 효과와 순열 중요도로 교정 | [`logistic_standardized_effects.csv`](outputs/metrics/logistic_standardized_effects.csv), [`logistic_permutation_importance.csv`](outputs/metrics/logistic_permutation_importance.csv) |
 
 ## 1. 프로젝트 배경
 
@@ -144,6 +178,16 @@ L2 Logistic을 기준모델로 선택했습니다. 최고 성능과 거의 같�
 
 학습 데이터에서 각 변수가 실제로 변하는 정도를 반영해 효과 크기를 다시 계산하고, 검증 데이터의 변수를 섞었을 때 성능이 얼마나 감소하는지도 확인했습니다.
 
+### 오류 교정 요약
+
+| 단계 | 확인·조치 |
+|---|---|
+| 문제 | 표준화 수치형과 0·1 더미변수의 원계수를 직접 비교 |
+| 오도된 신호 | `ORGANIZATION_TYPE_Realtor` 3위, `ORGANIZATION_TYPE_Transport: type 3` 6위 |
+| 교정 | `|β × SD(X_train)|` 재산정 + 검증 데이터 순열 중요도 확인 |
+| 결과 | 두 변수의 표준화 효과 순위가 각각 93위·88위로 하락해 기존 희소 조직유형 중심 해석 철회 |
+| 최종 해석 | `EXT_SOURCE_2`·`EXT_SOURCE_3`은 두 방법 모두 Top 10, 대출 금액 변수는 다중공선성을 고려해 묶음 신호로 제한 해석 |
+
 ### 표준화 효과 기준 Top 10
 
 `|로지스틱 계수 × 학습 데이터 표준편차|`를 기준으로 다시 정렬했습니다. 값은 [`logistic_standardized_effects.csv`](outputs/metrics/logistic_standardized_effects.csv)의 실제 산출값을 소수점 여섯째 자리까지 표시했습니다.
@@ -227,16 +271,16 @@ home-credit-default-risk/
    └─ consistency_audit.md
 ```
 
-## 12. 주요 산출물
+## 12. 최종 산출물
 
 | 구분 | 파일 | 설명 |
 |---|---|---|
-| 성능표 | [`model_holdout_performance.csv`](outputs/metrics/model_holdout_performance.csv) | 모델별 홀드아웃 성능과 학습시간 |
-| 교차검증 | [`cross_validation_summary.csv`](outputs/metrics/cross_validation_summary.csv) | 5겹 교차검증 평균과 표준편차 |
-| 임계값 | [`threshold_scenarios.csv`](outputs/metrics/threshold_scenarios.csv) | 기본·F1 최대·Recall 80% 시나리오 |
-| 위험구간 | [`risk_decile_summary.csv`](outputs/metrics/risk_decile_summary.csv) | 위험 10분위별 실제 부도율과 Lift |
-| 분석 보고서 | [`findings.md`](docs/findings.md) | 결과 해석, 수정 사항, 한계 |
-| 수치 검증 | [`consistency_audit.md`](docs/consistency_audit.md) | README·보고서·CSV 간 핵심 수치 교차검증 |
+| 분석 노트북 | [`01_data_quality_preprocessing.ipynb`](notebooks/01_data_quality_preprocessing.ipynb), [`02_exploratory_analysis.ipynb`](notebooks/02_exploratory_analysis.ipynb), [`03_modeling_evaluation.ipynb`](notebooks/03_modeling_evaluation.ipynb) | 품질·전처리부터 모델 평가까지 재현 가능한 실행 경로 |
+| 모델 성능·교차검증 | [`model_holdout_performance.csv`](outputs/metrics/model_holdout_performance.csv), [`cross_validation_summary.csv`](outputs/metrics/cross_validation_summary.csv) | 모델별 홀드아웃 성능·학습시간과 5겹 교차검증 |
+| 임계값·위험구간 | [`threshold_scenarios.csv`](outputs/metrics/threshold_scenarios.csv), [`risk_decile_summary.csv`](outputs/metrics/risk_decile_summary.csv) | 비용 관점 임계값 시나리오와 위험 10분위별 부도율·Lift |
+| 변수 중요도 검증 | [`logistic_standardized_effects.csv`](outputs/metrics/logistic_standardized_effects.csv), [`logistic_permutation_importance.csv`](outputs/metrics/logistic_permutation_importance.csv) | 표준화 효과와 검증 데이터 순열 중요도 |
+| 대표 시각화 | [`model_roc_curves.png`](outputs/figures/model_roc_curves.png), [`risk_decile_default_rate.png`](outputs/figures/risk_decile_default_rate.png), [`logistic_permutation_importance.png`](outputs/figures/logistic_permutation_importance.png) | 모델 비교·위험구간·교정된 중요도 결과 |
+| 해석·수치 감사 | [`findings.md`](docs/findings.md), [`consistency_audit.md`](docs/consistency_audit.md) | 결과 해석·수정 사항·한계와 README·CSV 간 교차검증 |
 
 전체 산출물 설명은 [`outputs/README.md`](outputs/README.md)에서 확인할 수 있습니다.
 
