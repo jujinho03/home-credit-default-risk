@@ -1,6 +1,6 @@
 # 핵심 수치 일관성 검증
 
-README, 분석 보고서와 `outputs/metrics/*.csv`의 핵심 수치를 교차 확인했습니다. 표본 수는 정수, 비율은 소수점 둘째 자리, 모델 지표는 소수점 넷째 자리로 반올림해 문서에 표시합니다.
+README, 분석 보고서와 `outputs/metrics/*.csv`의 핵심 수치를 교차 확인했다. 표본 수는 정수, 비율은 소수점 둘째 자리, 모델 지표는 소수점 넷째 자리로 반올림해 문서에 표시한다.
 
 ## 불일치 및 확인 목록
 
@@ -17,9 +17,9 @@ README, 분석 보고서와 `outputs/metrics/*.csv`의 핵심 수치를 교차 �
 
 ## 수정 완료 보고
 
-- 모호했던 121개 입력 변수 표현을 네 단계의 변수 차원으로 분리했습니다.
-- findings 모델 비교표에 CSV와 동일한 PR-AUC를 추가했습니다.
-- Lift는 현재 산출값 3.280593을 기준으로 전 문서에서 3.28배로 통일했습니다.
-- 모델 성능, 학습·검증 표본 수와 부도율은 불일치가 없음을 확인했습니다.
+- 모호했던 121개 입력 변수 표현을 네 단계의 변수 차원으로 분리했다.
+- findings 모델 비교표에 CSV와 동일한 PR-AUC를 추가했다.
+- Lift는 현재 산출값 3.280593을 기준으로 전 문서에서 3.28배로 통일했다.
+- 모델 성능, 학습·검증 표본 수와 부도율은 불일치가 없음을 확인했다.
 
-변경한 수치는 `model_holdout_performance.csv`, `risk_decile_summary.csv`, `train_validation_split_summary.csv`, `feature_engineering_catalog.csv`, `preprocessing_summary.csv`를 근거로 통일했습니다.
+변경한 수치는 `model_holdout_performance.csv`, `risk_decile_summary.csv`, `train_validation_split_summary.csv`, `feature_engineering_catalog.csv`, `preprocessing_summary.csv`를 근거로 통일했다.
