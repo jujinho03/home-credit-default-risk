@@ -1,10 +1,10 @@
 # 분석 산출물 안내
 
-노트북 실행 결과는 역할에 따라 네 폴더에 저장한다.
+노트북 실행 결과는 역할에 따라 네 폴더에 저장함.
 
 ## figures
 
-README와 분석 보고서에서 사용하는 그래프이다.
+README와 분석 보고서에서 사용하는 그래프임.
 
 - `model_roc_curves.png`: 모델별 ROC 곡선
 - `model_precision_recall_curves.png`: 모델별 Precision-Recall 곡선
@@ -14,11 +14,11 @@ README와 분석 보고서에서 사용하는 그래프이다.
 - `logistic_threshold_metrics.png`: 임계값별 Recall·Precision·F1
 - `risk_decile_default_rate.png`: 위험 10분위별 실제 부도율
 
-그 밖의 파일은 데이터 품질과 탐색적 분석 결과를 보여준다.
+그 밖의 파일은 데이터 품질과 탐색적 분석 결과를 보여줌.
 
 ## metrics
 
-검수 결과와 모델 평가값을 CSV로 저장한다.
+검수 결과와 모델 평가값을 CSV로 저장함.
 
 - `data_quality_checks.csv`: 중복, 결측, 무한값 점검
 - `model_holdout_performance.csv`: 모델별 검증 성능과 학습시간
@@ -28,8 +28,8 @@ README와 분석 보고서에서 사용하는 그래프이다.
 
 ## models
 
-실행 중 생성되는 전처리기와 모델 파일이 저장된다. `.pkl` 파일은 크기가 크고 노트북으로 다시 만들 수 있으므로 Git에서 제외한다.
+실행 중 생성되는 전처리기와 모델 파일이 저장됨. `.pkl` 파일은 크기가 크고 노트북으로 다시 만들 수 있으므로 Git에서 제외함.
 
 ## reports
 
-각 분석 단계에서 자동 생성한 간단한 Markdown 요약이다. 전체 해석은 [`../docs/findings.md`](../docs/findings.md)를 기준으로 본다.
+각 분석 단계에서 자동 생성한 간단한 Markdown 요약임. 전체 해석은 [`../docs/findings.md`](../docs/findings.md)를 기준으로 봄.
